@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { privateCert } = require("../config").keys;
+const { privateCert } = require("config").keys;
 
 const ISSUER = "simple-sso";
 

@@ -27,11 +27,12 @@ const ssoRedirect = () => {
         // now that we have the decoded jwt, use the,
         // global-session-id as the session id so that
         // the logout can be implemented with the global session.
+        console.log('set valid user', decoded);
         req.session.user = decoded;
       } catch (err) {
         return next(err);
       }
-
+      console.log('do redirect')
       return res.redirect(`${redirectURL}`);
     }
 

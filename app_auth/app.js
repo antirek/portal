@@ -5,6 +5,8 @@ const engine = require("ejs-mate");
 const session = require("express-session");
 const router = require("./router");
 
+const apps = require('./config/apps');
+
 app.use(
   session({
     secret: "keyboard cat",
@@ -25,9 +27,16 @@ app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
 app.use("/simplesso", router);
+
 app.get("/", (req, res, next) => {
+
+  console.log('session', req.session);
+  const auth = req.session.user ? true : false;
+
   res.render("index", {
     what: `SSO-Server ${req.session.user}`,
+    auth,
+    apps: auth ? apps : [],
     title: "SSO-Server | Home"
   });
 });
