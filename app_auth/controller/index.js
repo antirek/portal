@@ -73,7 +73,8 @@ const userDB = {
     appPolicy: {
       sso_consumer: { role: "admin", shareEmail: true },
       simple_sso_consumer: { role: "user", shareEmail: false }
-    }
+    },
+    accountId: '121212324324',
   }
 };
 
@@ -109,6 +110,7 @@ const generatePayload = ssoToken => {
       email,
       shareEmail: undefined,
       uid: user.userId,
+      accountId: user.accountId || '0',
       // global SessionID for the logout functionality.
       globalSessionID: globalSessionToken
     }
@@ -144,6 +146,7 @@ const verifySsoToken = async (req, res, next) => {
   const payload = generatePayload(ssoToken);
 
   const token = await genJwtToken(payload);
+  console.log('token', token);
   // delete the itremCache key for no futher use,
   delete intrmTokenCache[ssoToken];
   return res.status(200).json({ token });
