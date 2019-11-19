@@ -4,7 +4,7 @@ const { publicKey } = require("./config").keys;
 const ISSUER = "simple-sso";
 const verifyJwtToken = token =>
   new Promise((resolve, reject) => {
-    console.log('token', token)
+    // console.log('token', token)
     jwt.verify(
       token,
       publicKey,

@@ -4,40 +4,11 @@ const userDB = require('./../config/users');
 
 
 const { genJwtToken } = require("./jwt_helper");
-const { encodedId } = require('./auth_helper');
+const { 
+  encodedId, 
+  fromAuthHeaderAsBearerToken,
+} = require('./auth_helper');
 
-const re = /(\S+)\s+(\S+)/;
-
-// Note: express http converts all headers
-// to lower case.
-const AUTH_HEADER = "authorization";
-const BEARER_AUTH_SCHEME = "bearer";
-
-function parseAuthHeader(hdrValue) {
-  if (typeof hdrValue !== "string") {
-    return null;
-  }
-  const matches = hdrValue.match(re);
-  return matches && { scheme: matches[1], value: matches[2] };
-}
-
-const fromAuthHeaderWithScheme = function(authScheme) {
-  const authSchemeLower = authScheme.toLowerCase();
-  return function(request) {
-    let token = null;
-    if (request.headers[AUTH_HEADER]) {
-      const authParams = parseAuthHeader(request.headers[AUTH_HEADER]);
-      if (authParams && authSchemeLower === authParams.scheme.toLowerCase()) {
-        token = authParams.value;
-      }
-    }
-    return token;
-  };
-};
-
-const fromAuthHeaderAsBearerToken = function() {
-  return fromAuthHeaderWithScheme(BEARER_AUTH_SCHEME);
-};
 
 const appTokenFromRequest = fromAuthHeaderAsBearerToken();
 
@@ -80,7 +51,9 @@ const storeApplicationInCache = (origin, id, intrmToken) => {
     sessionApp[id][originAppName[origin]] = true;
     fillIntrmTokenCache(origin, id, intrmToken);
   }
-  console.log({ ...sessionApp }, { ...sessionUser }, { intrmTokenCache });
+  console.log('session app:', { ...sessionApp }, 
+              'session user:', { ...sessionUser },
+              'intermediate token:', { ...intrmTokenCache });
 };
 
 const generatePayload = ssoToken => {
@@ -162,6 +135,19 @@ const doLogin = (req, res, next) => {
   return res.redirect(`${serviceURL}?ssoToken=${intrmid}`);
 };
 
+const doLogout = (req, res, next) => {
+  const {globalSessionToken} = req.query;
+  delete sessionApp[globalSessionToken];
+  delete sessionUser[globalSessionToken];
+
+  console.log('session app:', { ...sessionApp },
+              'session user:', { ...sessionUser },
+              'intermediate token:', { ...intrmTokenCache });
+
+  req.session.destroy();
+  res.redirect('/');
+}
+
 const login = (req, res, next) => {
   // The req.query will have the redirect url where we need to redirect after successful
   // login and with sso token.
@@ -193,4 +179,9 @@ const login = (req, res, next) => {
   });
 };
 
-module.exports = Object.assign({}, { doLogin, login, verifySsoToken });
+module.exports = Object.assign({}, { 
+  doLogin,
+  login,
+  doLogout,
+  verifySsoToken,
+});

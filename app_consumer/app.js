@@ -39,6 +39,16 @@ app.get("/list", isAuthenticated, (req, res, next) => {
   });
 });
 
+app.get('/logout', (req, res, next) => {
+  console.log('user', req.session.user);
+  const globalSessionToken = req.session.user.globalSessionID;
+  req.session.destroy();
+  res.redirect(
+    "http://sso.ankuranand.com:3010/simplesso/logout?globalSessionToken=" + 
+    globalSessionToken
+  );
+})
+
 app.use((req, res, next) => {
   // catch 404 and forward to error handler
   const err = new Error("Resource Not Found");

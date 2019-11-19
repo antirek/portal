@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const engine = require("ejs-mate");
 const session = require("express-session");
-const FileStore = require('session-file-store')(session);
+// const FileStore = require('session-file-store')(session);
 
 const router = require("./router");
 const apps = require('./config/apps');
@@ -10,7 +10,7 @@ const apps = require('./config/apps');
 const app = express();
 
 app.use(session({
-    store: new FileStore({}),
+    // store: new FileStore({}),
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,

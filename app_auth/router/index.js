@@ -8,6 +8,8 @@ router
   .get(controller.login)
   .post(controller.doLogin);
 
+router.get("/logout", controller.doLogout);
+
 router.get("/verifytoken", controller.verifySsoToken);
 
 module.exports = router;
