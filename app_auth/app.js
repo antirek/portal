@@ -1,19 +1,20 @@
 const express = require("express");
 const morgan = require("morgan");
-const app = express();
 const engine = require("ejs-mate");
 const session = require("express-session");
-const router = require("./router");
+const FileStore = require('session-file-store')(session);
 
+const router = require("./router");
 const apps = require('./config/apps');
 
-app.use(
-  session({
-    secret: "keyboard cat",
+const app = express();
+
+app.use(session({
+    store: new FileStore({}),
+    secret: 'keyboard cat',
     resave: false,
-    saveUninitialized: true
-  })
-);
+    saveUninitialized: true,
+}));
 app.use((req, res, next) => {
   console.log(req.session);
   next();

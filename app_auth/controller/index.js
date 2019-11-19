@@ -1,10 +1,10 @@
-const uuidv4 = require("uuid/v4");
-const Hashids = require("hashids");
 const URL = require("url").URL;
-const hashids = new Hashids();
+const apps = require('./../config/apps');
+const userDB = require('./../config/users');
 
 
 const { genJwtToken } = require("./jwt_helper");
+const { encodedId } = require('./auth_helper');
 
 const re = /(\S+)\s+(\S+)/;
 
@@ -42,44 +42,30 @@ const fromAuthHeaderAsBearerToken = function() {
 const appTokenFromRequest = fromAuthHeaderAsBearerToken();
 
 // app token to validate the request is coming from the authenticated server only.
-const appTokenDB = {
-  sso_consumer: "l1Q7zkOL59cRqWBkQ12ZiGVW2DBL",
-  simple_sso_consumer: "1g0jJwGmRQhJwvwNOrY4i90kD0m"
-};
 
-const alloweOrigin = {
-  "http://consumer.ankuranand.in:3020": true,
-  "http://consumertwo.ankuranand.in:3030": true,
-  "http://sso.ankuranand.in:3080": false
-};
+const appTokenDB = {};
+apps.map(app => {
+  appTokenDB[app.id] = app.token;
+})
 
-const deHyphenatedUUID = () => uuidv4().replace(/-/gi, "");
-const encodedId = () => hashids.encodeHex(deHyphenatedUUID());
+const alloweOrigin = {}
+apps.map(app => {
+  alloweOrigin[app.url] = true;
+})
 
+const originAppName = {};
+apps.map(app => {
+  originAppName[app.url] = app.id;
+});
+
+
+// these token are for the validation purpose
+const intrmTokenCache = {};
 // A temporary cahce to store all the application that has login using the current session.
 // It can be useful for variuos audit purpose
 const sessionUser = {};
 const sessionApp = {};
 
-const originAppName = {
-  "http://consumer.ankuranand.in:3020": "sso_consumer",
-  "http://consumertwo.ankuranand.in:3030": "simple_sso_consumer"
-};
-
-const userDB = {
-  "info@ankuranand.com": {
-    password: "test",
-    userId: encodedId(), // incase you dont want to share the user-email.
-    appPolicy: {
-      sso_consumer: { role: "admin", shareEmail: true },
-      simple_sso_consumer: { role: "user", shareEmail: false }
-    },
-    accountId: '121212324324',
-  }
-};
-
-// these token are for the validation purpose
-const intrmTokenCache = {};
 
 const fillIntrmTokenCache = (origin, id, intrmToken) => {
   intrmTokenCache[intrmToken] = [id, originAppName[origin]];

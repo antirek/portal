@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
-const { privateCert } = require("config").keys;
+const config = require("config");
+const { privateCert } = config.keys;
 
-const ISSUER = "simple-sso";
+const ISSUER = config.issuer;
 
 const genJwtToken = payload =>
   new Promise((resolve, reject) => {
