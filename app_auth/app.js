@@ -1,6 +1,5 @@
 const express = require("express");
 const morgan = require("morgan");
-const engine = require("ejs-mate");
 const session = require("express-session");
 // const FileStore = require('session-file-store')(session);
 
@@ -23,9 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(morgan("dev"));
-app.engine("ejs", engine);
 app.set("views", __dirname + "/views");
-app.set("view engine", "ejs");
+app.set("view engine", "pug");
 
 app.use("/simplesso", router);
 

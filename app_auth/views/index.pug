@@ -1,0 +1,17 @@
+extends layout.pug
+
+block body
+  h1 I am the 
+    span= what
+  h2 auth 
+    span= auth
+  ul
+    li
+      a(href='/simplesso/login') Login
+    li
+      a(href='/simplesso/login') Logout
+
+  ul
+    each app in apps
+      li
+        a(href=app.url)= app.id

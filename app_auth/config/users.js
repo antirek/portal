@@ -4,7 +4,7 @@ module.exports = {
     userId: 'jeremy-erjkregnkjdfgkdjfwow32435aiebfidfbguerigberig', // incase you dont want to share the user-email.
     appPolicy: {
       sso_consumer: {
-        role: "admin", 
+        role: "admin",
         shareEmail: true,
       },
       simple_sso_consumer: {
