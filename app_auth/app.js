@@ -1,7 +1,8 @@
 const express = require("express");
 const morgan = require("morgan");
 const session = require("express-session");
-// const FileStore = require('session-file-store')(session);
+const path = require('path');
+const favicon = require('serve-favicon')
 
 const router = require("./router");
 const apps = require('./config/apps');
@@ -9,15 +10,12 @@ const apps = require('./config/apps');
 const app = express();
 
 app.use(session({
-    // store: new FileStore({}),
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
 }));
-app.use((req, res, next) => {
-  console.log(req.session);
-  next();
-});
+app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
+app.use('/static', express.static(path.join(__dirname, 'node_modules')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -28,16 +26,23 @@ app.set("view engine", "pug");
 app.use("/simplesso", router);
 
 app.get("/", (req, res, next) => {
-
-  console.log('session', req.session);
   const auth = req.session.user ? true : false;
-
+  const defaultURL = 'http://consumer.ankuranand.in:3020/';
+  if (auth) {
+    console.log('auth true, redirect to', defaultURL)
+    res.redirect(defaultURL);
+  } else {
+    console.log('auth false, redirect to login');
+    res.redirect('/simplesso/login');
+  }
+  /*
   res.render("index", {
     what: `SSO-Server ${req.session.user}`,
     auth,
     apps: auth ? apps : [],
     title: "SSO-Server | Home"
   });
+  */
 });
 
 app.use((req, res, next) => {

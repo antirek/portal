@@ -42,10 +42,11 @@ app.get("/list", isAuthenticated, (req, res, next) => {
 app.get('/logout', (req, res, next) => {
   console.log('user', req.session.user);
   const globalSessionToken = req.session.user.globalSessionID;
+  const redirectURL = `${req.protocol}://${req.headers.host}`;
   req.session.destroy();
   res.redirect(
     "http://sso.ankuranand.com:3010/simplesso/logout?globalSessionToken=" + 
-    globalSessionToken
+    globalSessionToken + "&serviceURL=" + redirectURL
   );
 })
 

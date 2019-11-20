@@ -2,6 +2,9 @@ extends layout.pug
 
 block body
   body.text-center
+    if error
+      h3= error
+    
     form.form-signin(method='post')
       h1.h3.mb-3.font-weight-normal SSO server sign in
       label.sr-only(for='inputEmail') Email address

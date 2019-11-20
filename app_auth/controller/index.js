@@ -2,6 +2,7 @@ const URL = require("url").URL;
 const apps = require('./../config/apps');
 const userDB = require('./../config/users');
 
+const defaultURL = 'http://consumer.ankuranand.in:3020/';
 
 const { genJwtToken } = require("./jwt_helper");
 const { 
@@ -118,7 +119,8 @@ const doLogin = (req, res, next) => {
   // like checking with Datebase and all, we are skiping these section
   const { email, password } = req.body;
   if (!(userDB[email] && password === userDB[email].password)) {
-    return res.status(404).json({ message: "Invalid email and password" });
+    return res.redirect("/simplesso/login?error=Invalid email and password");
+    //return res.status(404).json({ message: "Invalid email and password" });
   }
 
   // else redirect
@@ -127,7 +129,8 @@ const doLogin = (req, res, next) => {
   req.session.user = id;
   sessionUser[id] = email;
   if (serviceURL == null) {
-    return res.redirect("/");
+    // return res.redirect("/");
+    return res.redirect(defaultURL);
   }
   const url = new URL(serviceURL);
   const intrmid = encodedId();
@@ -153,7 +156,7 @@ const login = (req, res, next) => {
   // login and with sso token.
   // This can also be used to verify the origin from where the request has came in
   // for the redirection
-  const { serviceURL } = req.query;
+  const { serviceURL, error } = req.query;
   // direct access will give the error inside new URL.
   if (serviceURL != null) {
     const url = new URL(serviceURL);
@@ -164,7 +167,8 @@ const login = (req, res, next) => {
     }
   }
   if (req.session.user != null && serviceURL == null) {
-    return res.redirect("/");
+    //return res.redirect("/");
+    return res.redirect(defaultURL);
   }
   // if global session already has the user directly redirect with the token
   if (req.session.user != null && serviceURL != null) {
@@ -175,7 +179,8 @@ const login = (req, res, next) => {
   }
 
   return res.render("login", {
-    title: "SSO-Server | Login"
+    title: "SSO-Server | Login",
+    error,
   });
 };
 
