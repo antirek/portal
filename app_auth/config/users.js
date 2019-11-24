@@ -1,15 +1,15 @@
 module.exports = {
   "info@ankuranand.com": {
     password: "test",
-    userId: 'jeremy-erjkregnkjdfgkdjfwow32435aiebfidfbguerigberig', // incase you dont want to share the user-email.
+    userId: 'jeremy-erjkregnkjdfgkdjf', // incase you dont want to share the user-email.
     appPolicy: {
-      sso_consumer: {
-        role: "admin",
+      sso_desktop: {
+        role: "desktop.admin",
         shareEmail: true,
       },
-      simple_sso_consumer: {
-        role: "user",
-        shareEmail: false,
+      sso_consumer: {
+        role: "consumer.admin",
+        shareEmail: true,
       },
     },
     accountId: '121212324324',

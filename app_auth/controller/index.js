@@ -1,8 +1,10 @@
 const URL = require("url").URL;
+const config = require('config');
+
 const apps = require('./../config/apps');
 const userDB = require('./../config/users');
 
-const defaultURL = 'http://desktop.ankuranand.com:3030/';
+const defaultURL = config.defaultURL;
 
 const { genJwtToken } = require("./jwt_helper");
 const { 
@@ -100,6 +102,7 @@ const verifySsoToken = async (req, res, next) => {
     appToken !== appTokenDB[appName] ||
     sessionApp[globalSessionToken][appName] !== true
   ) {
+    console.log('1');
     return res.status(403).json({ message: "Unauthorized" });
   }
   // checking if the token passed has been generated

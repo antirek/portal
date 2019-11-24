@@ -5,10 +5,8 @@ const path = require('path');
 const favicon = require('serve-favicon')
 
 const router = require("./router");
-const apps = require('./config/apps');
 
 const app = express();
-
 app.use(session({
     secret: 'keyboard cat',
     resave: false,

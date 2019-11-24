@@ -9,11 +9,7 @@ const privateCert = fs.readFileSync(privateKeyFilePath);
 
 const jwtValidatityKey = "simple-sso-jwt-validatity";
 
-module.exports = Object.assign(
-  {},
-  {
-    privateCert,
-
-    jwtValidatityKey
-  }
-);
+module.exports = {
+  privateCert,
+  jwtValidatityKey
+};

@@ -18,7 +18,7 @@ const ssoRedirect = () => {
           `${ssoServerJWTURL}?ssoToken=${ssoToken}`,
           {
             headers: {
-              Authorization: "Bearer l1Q7zkOL59cRqWBkQ12ZiGVW2DBL"
+              Authorization: "Bearer l1Q7zkOL59cRqWBkQ12ZiGVW2222"
             }
           }
         );
