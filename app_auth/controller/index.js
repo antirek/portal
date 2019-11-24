@@ -2,7 +2,7 @@ const URL = require("url").URL;
 const apps = require('./../config/apps');
 const userDB = require('./../config/users');
 
-const defaultURL = 'http://consumer.ankuranand.in:3020/';
+const defaultURL = 'http://desktop.ankuranand.com:3030/';
 
 const { genJwtToken } = require("./jwt_helper");
 const { 
