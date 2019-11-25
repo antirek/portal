@@ -7,6 +7,8 @@ block body
     li
       a(href='/list') list
     li
+      a(href='/accounts') accounts
+    li
       a(href='/logout') logout
     li
       a(href='http://sso.ankuranand.com:3010/') main
@@ -16,3 +18,9 @@ block body
       for app in apps
         li
           a(href=app.url) #{app.title}
+
+  ul
+    if accounts
+      for account in accounts
+        li
+          a(href=account.id) #{account.title}

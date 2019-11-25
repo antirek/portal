@@ -6,6 +6,9 @@ const config = require("config");
 const { SSOHelper } = require("./sso_helper");
 
 const apps = require('./../app_auth/config/apps');
+const models = require('./../app_auth/models/index');
+
+const accountsRouter = require('./routes/accounts');
 
 const app = express();
 app.use(
@@ -30,6 +33,8 @@ app.use(morgan("dev"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "pug");
 app.use(sso.checkSSORedirect());
+
+app.use('/accounts', sso.isAuthenticated(), accountsRouter.router);
 
 app.get("/", sso.isAuthenticated(), (req, res, next) => {
   res.render("index", {

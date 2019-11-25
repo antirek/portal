@@ -87,6 +87,7 @@ const generatePayload = ssoToken => {
       urls: {
         start: 'http://desktop',
         support: 'http://support',
+        flush: 'http://sso.flush',
       },
       // global SessionID for the logout functionality.
       globalSessionID: globalSessionToken
