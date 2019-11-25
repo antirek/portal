@@ -1,6 +1,6 @@
 const app = require("./app");
-const PORT = 3030;
+const config = require('config');
 
-app.listen(PORT, () => {
-  console.info(`sso-desktop listening on port ${PORT}`);
+app.listen(config.get('port'), () => {
+  console.info('sso-desktop with config', config);
 });

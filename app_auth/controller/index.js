@@ -72,7 +72,22 @@ const generatePayload = ssoToken => {
       email,
       shareEmail: undefined,
       uid: user.userId,
-      accountId: user.accountId || '0',
+      accountId: user.accountId || '0',      
+      account: {
+        type: 'client',
+        id: '121212',
+      },
+      user: {
+        id: '121212',
+        level: 'super.admin',
+        role: 'manager',
+        email: 'email@email',
+        phone: '',
+      },
+      urls: {
+        start: 'http://desktop',
+        support: 'http://support',
+      },
       // global SessionID for the logout functionality.
       globalSessionID: globalSessionToken
     }

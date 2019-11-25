@@ -3,10 +3,7 @@ const morgan = require("morgan");
 const session = require("express-session");
 const config = require("config");
 
-const {
-  isAuthenticated,
-  checkSSORedirect, 
-} = require("./sso_helper");
+const { SSOHelper } = require("./sso_helper");
 
 const apps = require('./../app_auth/config/apps');
 
@@ -22,27 +19,26 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const { publicKeyPath } = config.keys;
-const ssoServerJWTURL = config.get("ssoServerJWTURL");
+const sso = new SSOHelper({
+  publicKeyPath: config.get('keys.publicKeyPath'),
+  ssoServerJWTURL: config.get("ssoServerJWTURL"),
+  issuer: config.get('issuer'),
+  ssoAppToken: config.get('ssoAppToken'),
+})
 
 app.use(morgan("dev"));
 app.set("views", __dirname + "/views");
 app.set("view engine", "pug");
-app.use(checkSSORedirect({
-  ssoServerJWTURLVerifyToken: config.get("ssoServerJWTURL") + 'verifytoken',
-  ssoAppToken: config.get('ssoAppToken'), 
-  publicKeyPath, 
-  issuer: 'simple-sso'
-}));
+app.use(sso.checkSSORedirect());
 
-app.get("/", isAuthenticated({ssoServerJWTURL }), (req, res, next) => {
+app.get("/", sso.isAuthenticated(), (req, res, next) => {
   res.render("index", {
     what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
     title: "SSO-Desktop",
   });
 });
 
-app.get("/list", isAuthenticated({ssoServerJWTURL }), (req, res, next) => {
+app.get("/list", sso.isAuthenticated(), (req, res, next) => {
   res.render("index", {
     what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
     title: "SSO-Desktop",
