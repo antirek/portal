@@ -41,7 +41,11 @@ class SSOHelper {
       // if not redirect the user to the SSO Server for Login
       // pass the redirect URL as current URL
       // serviceURL is where the sso should redirect in case of valid user
-      const redirectURL = `${req.protocol}://${req.headers.host}${req.path}`;
+
+      //console.log('req', req);
+      //console.log('redirect, req original url', req.originalUrl)
+      //console.log('redirect, req path', req.path)
+      const redirectURL = `${req.protocol}://${req.headers.host}${req.baseUrl}${req.path}`;
       if (req.session.user == null) {
         return res.redirect(
           this.ssoServerJWTURL + `login?serviceURL=${redirectURL}`
@@ -61,6 +65,10 @@ class SSOHelper {
       
       if (ssoToken != null) {
         // to remove the ssoToken in query parameter redirect.
+
+        //console.log('req url', req.url);
+        //console.log('req original  url', req.originalUrl);
+        //console.dir('req base url', req.baseUrl) 
         const redirectURL = url.parse(req.url).pathname;
         try {
           const response = await fetch(

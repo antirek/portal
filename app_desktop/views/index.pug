@@ -23,4 +23,11 @@ block body
     if accounts
       for account in accounts
         li
-          a(href=account.id) #{account.title}
+          a(href='/accounts/users/' + account.accountId) #{account.title} #{account.type}
+          a(href='/accounts/change/' + account.accountId) change account
+
+  ul
+    if users
+      for user in users
+        li
+          a(href=user.id) #{user.name}
