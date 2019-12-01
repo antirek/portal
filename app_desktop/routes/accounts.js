@@ -28,7 +28,9 @@ router.get('/change/:accountId', async (req, res) => {
   const user = req.session.user.user;
   console.log('user', user);
   const result = await accountManager.changeAccount(user.id, accountId);
-  res.send('OK');
+  //const sso_helper = require('./../sso_helper');  
+
+  res.redirect('http://sso.ankuranand.com:3010/simplesso/login?rnd=' + Math.random(4));
 });
 
 module.exports = {

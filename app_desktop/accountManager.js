@@ -24,6 +24,13 @@ class AccountManager {
     return accounts.map(acc => this._formatAccount(acc));
   }
 
+  async getAccountById(accountId) {
+    console.log('accountId', accountId);
+    const account = await this.models.Account.findOne({accountId});
+    if (!account) return;
+    return this._formatAccount(account);
+  }
+
   _formatUser (user) {
     return {
       userId: user.userId,
@@ -44,6 +51,26 @@ class AccountManager {
     user.managedAccountId = accountId;
     const userSaved = await user.save();
     return this._formatUser(userSaved);
+  }
+
+  async findUserByEmailAndPassword(email, password) {
+    console.log('email', email, 'password', password);
+    const user = await this.models.User.findOne({email});
+    console.log('user', user);
+    if (!password) {
+      return this._formatUser(user);
+    }
+    if (user.password === password) {
+      return this._formatUser(user);
+    }
+    return;
+  }
+
+  async getAppPolicy(appId, userId) {
+    const policy = await this.models.AppPolicy.findOne({appId, userId});
+    console.log('policy', policy);
+    if (!policy) return
+    return policy;
   }
 }
 

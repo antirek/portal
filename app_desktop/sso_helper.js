@@ -15,6 +15,7 @@ class SSOHelper {
     this.ssoServerJWTURL = ssoServerJWTURL;
     this.ssoAppToken = ssoAppToken;
     this.ssoServerJWTURLVerifyToken = ssoServerJWTURL + 'verifytoken';
+    this.ssoToken;
   }
 
   verifyJwtToken (token) {
@@ -65,7 +66,7 @@ class SSOHelper {
       
       if (ssoToken != null) {
         // to remove the ssoToken in query parameter redirect.
-
+        this.ssoToken = ssoToken;
         //console.log('req url', req.url);
         //console.log('req original  url', req.originalUrl);
         //console.dir('req base url', req.baseUrl) 
@@ -86,6 +87,7 @@ class SSOHelper {
           // the logout can be implemented with the global session.
           console.log('set valid user', decoded);
           req.session.user = decoded;
+          req.updateToken = this.updateToken;
         } catch (err) {
           return next(err);
         }

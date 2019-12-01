@@ -2,7 +2,11 @@ const URL = require("url").URL;
 const config = require('config');
 
 const apps = require('./../config/apps');
-const userDB = require('./../config/users');
+// const userDB = require('./../config/users');
+
+const {AccountManager} = require('./../../app_desktop/accountManager');
+const models = require('./../models/index');
+const accountManager = new AccountManager({models});
 
 const defaultURL = config.defaultURL;
 
@@ -59,39 +63,38 @@ const storeApplicationInCache = (origin, id, intrmToken) => {
               'intermediate token:', { ...intrmTokenCache });
 };
 
-const generatePayload = ssoToken => {
+const generatePayload = async ssoToken => {
   const globalSessionToken = intrmTokenCache[ssoToken][0];
   const appName = intrmTokenCache[ssoToken][1];
   const userEmail = sessionUser[globalSessionToken];
-  const user = userDB[userEmail];
-  const appPolicy = user.appPolicy[appName];
-  const email = appPolicy.shareEmail === true ? userEmail : undefined;
-  const payload = {
-    ...{ ...appPolicy },
-    ...{
-      email,
-      shareEmail: undefined,
-      uid: user.userId,
-      accountId: user.accountId || '0',      
-      account: {
-        type: 'client',
-        id: '121212',
-      },
-      user: {
-        id: '121212',
-        level: 'super.admin',
-        role: 'manager',
-        email: 'email@email',
-        phone: '',
-      },
-      urls: {
-        start: 'http://desktop',
-        support: 'http://support',
-        flush: 'http://sso.flush',
-      },
-      // global SessionID for the logout functionality.
-      globalSessionID: globalSessionToken
-    }
+  // const user = userDB[userEmail];
+  const user = await accountManager.findUserByEmailAndPassword(userEmail, false);
+  const appPolicy = await accountManager.getAppPolicy(appName, user.userId);
+  const account = await accountManager.getAccountById(user.accountId);
+  //console.log('account', account);
+
+  const payload = {    
+    userId: user.userId,
+    accountId: user.accountId,
+    account: {
+      type: account.type,
+      id: account.accountId,
+      title: account.title,
+    },
+    user: {
+      id: user.userId,
+      accountId: user.ownAccountId,
+      level: 'super.admin',
+      role: appPolicy.role,
+      email: user.email,      
+    },
+    urls: {
+      start: 'http://desktop',
+      support: 'http://support',
+      flush: 'http://sso.flush',
+    },
+    // global SessionID for the logout functionality.
+    globalSessionID: globalSessionToken
   };
   return payload;
 };
@@ -118,29 +121,36 @@ const verifySsoToken = async (req, res, next) => {
     appToken !== appTokenDB[appName] ||
     sessionApp[globalSessionToken][appName] !== true
   ) {
-    console.log('1');
+    // console.log('1');
     return res.status(403).json({ message: "Unauthorized" });
   }
   // checking if the token passed has been generated
-  const payload = generatePayload(ssoToken);
-
+  const payload = await generatePayload(ssoToken);
+  console.log('payload', payload)
   const token = await genJwtToken(payload);
-  console.log('token', token);
+  // console.log('token', token);
   // delete the itremCache key for no futher use,
   delete intrmTokenCache[ssoToken];
   return res.status(200).json({ token });
 };
 
 
-const doLogin = (req, res, next) => {
+const doLogin = async (req, res, next) => {
   // do the validation with email and password
   // but the goal is not to do the same in this right now,
   // like checking with Datebase and all, we are skiping these section
   const { email, password } = req.body;
+  const user = await accountManager.findUserByEmailAndPassword(email, password);
+  if (!user) {
+    return res.redirect("/simplesso/login?error=Invalid email and password");
+  }
+
+  /*
   if (!(userDB[email] && password === userDB[email].password)) {
     return res.redirect("/simplesso/login?error=Invalid email and password");
     //return res.status(404).json({ message: "Invalid email and password" });
   }
+  */
 
   // else redirect
   const { serviceURL } = req.query;
@@ -156,6 +166,7 @@ const doLogin = (req, res, next) => {
   storeApplicationInCache(url.origin, id, intrmid);
   return res.redirect(`${serviceURL}?ssoToken=${intrmid}`);
 };
+
 
 const doLogout = (req, res, next) => {
   const {globalSessionToken} = req.query;
@@ -175,7 +186,7 @@ const login = (req, res, next) => {
   // login and with sso token.
   // This can also be used to verify the origin from where the request has came in
   // for the redirection
-  const { serviceURL, error } = req.query;
+  const { serviceURL, error, rnd } = req.query;
   // direct access will give the error inside new URL.
   if (serviceURL != null) {
     const url = new URL(serviceURL);
@@ -185,16 +196,18 @@ const login = (req, res, next) => {
         .json({ message: "Your are not allowed to access the sso-server" });
     }
   }
-  if (req.session.user != null && serviceURL == null) {
+  if (req.session.user != null && serviceURL == null && rnd == null) {
     //return res.redirect("/");
     return res.redirect(defaultURL);
   }
   // if global session already has the user directly redirect with the token
-  if (req.session.user != null && serviceURL != null) {
-    const url = new URL(serviceURL);
+  if (req.session.user != null && (serviceURL != null || rnd !=null)) {
+    const followUrl = serviceURL ? serviceURL : defaultURL;
+    
+    const url = new URL(followUrl);
     const intrmid = encodedId();
     storeApplicationInCache(url.origin, req.session.user, intrmid);
-    return res.redirect(`${serviceURL}?ssoToken=${intrmid}`);
+    return res.redirect(`${followUrl}?ssoToken=${intrmid}`);
   }
 
   return res.render("login", {

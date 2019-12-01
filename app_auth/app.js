@@ -5,6 +5,7 @@ const path = require('path');
 const favicon = require('serve-favicon')
 
 const router = require("./router");
+const defaultURL = 'http://consumer.ankuranand.in:3020/';
 
 const app = express();
 app.use(session({
@@ -25,7 +26,6 @@ app.use("/simplesso", router);
 
 app.get("/", (req, res, next) => {
   const auth = req.session.user ? true : false;
-  const defaultURL = 'http://consumer.ankuranand.in:3020/';
   if (auth) {
     console.log('auth true, redirect to', defaultURL)
     res.redirect(defaultURL);
