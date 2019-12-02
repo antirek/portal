@@ -33,10 +33,11 @@ class AccountManager {
 
   _formatUser (user) {
     return {
-      userId: user.userId,
+      userId: user.id,
       name: user.name,
-      accountId: user.managedAccountId ? user.managedAccountId : user.accountId,
+      accountId: Boolean(user.managedAccountId) ? user.managedAccountId : user.accountId,
       ownAccountId: user.accountId,
+      email: user.email,
     }
   }
 
@@ -48,9 +49,12 @@ class AccountManager {
 
   async changeAccount(userId, accountId) {
     const user = await this.models.User.findOne({userId});
-    user.managedAccountId = accountId;
-    const userSaved = await user.save();
-    return this._formatUser(userSaved);
+    let userSaved;
+    if (accountId !== 'undefined') {
+      user.managedAccountId = accountId;
+      userSaved = await user.save();
+    }
+    return this._formatUser(userSaved || user);
   }
 
   async findUserByEmailAndPassword(email, password) {

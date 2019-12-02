@@ -2,5 +2,36 @@ doctype html
 html
   head
     title= title
-  body
-    block body
+    link(rel='stylesheet', href='/static/bootstrap/dist/css/bootstrap.min.css')
+    // link(rel='stylesheet', href='/public/css/app_desktop.css')
+    script(src="/static/jquery/dist/jquery.min.js")
+    script(src='/static/bootstrap/dist/js/bootstrap.min.js')
+    script(src="/static/angular/angular.min.js")
+    script(src="/static/angular-resource/angular-resource.min.js")
+
+    link(rel='stylesheet', href='/static/angular-ui-bootstrap/dist/ui-bootstrap-csp.css')
+    script(src='/static/angular-ui-bootstrap/dist/ui-bootstrap.js')
+    script(src='/static/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js')
+
+    script(src="/public/js/app_desktop.js")
+
+  body(ng-app="app_desktop" ng-controller="MainController as $ctrl") 
+    nav.navbar.navbar
+      a.navbar-brand(href='/') Platform
+      a.navbar-text(href='/') App
+      ul.nav.navbar-nav
+        li Аккаунт #{what.account.title} (#{what.account.id})
+        li Пользователь #{what.user.name} (#{what.user.accountId})
+
+    ul
+      if accounts
+        for account in accounts
+          li #{account.title} 
+            a(href='/accounts/change/' + account.accountId) change account
+
+    ul
+      if apps
+        for app in apps
+          li
+            a(href=app.url) #{app.title}
+  // block body

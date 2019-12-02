@@ -69,9 +69,12 @@ const generatePayload = async ssoToken => {
   const userEmail = sessionUser[globalSessionToken];
   // const user = userDB[userEmail];
   const user = await accountManager.findUserByEmailAndPassword(userEmail, false);
+  console.log('user formated', user);
   const appPolicy = await accountManager.getAppPolicy(appName, user.userId);
   const account = await accountManager.getAccountById(user.accountId);
   //console.log('account', account);
+  // if (!account) {return};
+
 
   const payload = {    
     userId: user.userId,
@@ -85,8 +88,9 @@ const generatePayload = async ssoToken => {
       id: user.userId,
       accountId: user.ownAccountId,
       level: 'super.admin',
-      role: appPolicy.role,
-      email: user.email,      
+      role: appPolicy.role || null,
+      email: user.email,
+      name: user.name, 
     },
     urls: {
       start: 'http://desktop',
@@ -126,7 +130,7 @@ const verifySsoToken = async (req, res, next) => {
   }
   // checking if the token passed has been generated
   const payload = await generatePayload(ssoToken);
-  console.log('payload', payload)
+  console.log('payload', payload);  
   const token = await genJwtToken(payload);
   // console.log('token', token);
   // delete the itremCache key for no futher use,
