@@ -1,41 +1,83 @@
 const express = require("express");
 const morgan = require("morgan");
-const app = express();
-const engine = require("ejs-mate");
 const session = require("express-session");
+const config = require("config");
+const path = require('path');
+const favicon = require('serve-favicon');
 
-const isAuthenticated = require("./isAuthenticated");
-const checkSSORedirect = require("./checkSSORedirect");
+const { SSOHelper } = require("./sso_helper");
 
+const apps = require('./../app_auth/config/apps');
+const models = require('./../app_auth/models/index');
+
+const accountsRouter = require('./routes/accounts');
+const {AccountManager} = require('./accountManager');
+const accountManager = new AccountManager({models});
+const app = express();
+
+app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
 app.use(
   session({
     secret: "keyboard cat",
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 60000,
+    }
   })
 );
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(morgan("dev"));
-app.engine("ejs", engine);
-app.set("views", __dirname + "/views");
-app.set("view engine", "ejs");
-app.use(checkSSORedirect());
+const sso = new SSOHelper({
+  publicKeyPath: config.get('keys.publicKeyPath'),
+  ssoServerJWTURL: config.get("ssoServerJWTURL"),
+  issuer: config.get('issuer'),
+  ssoAppToken: config.get('ssoAppToken'),
+})
 
-app.get("/", isAuthenticated, (req, res, next) => {
-  res.render("index", {
-    what: `SSO-Consumer One ${JSON.stringify(req.session.user, null, 2)}`,
-    title: "SSO-Consumer | Home"
+app.use(morgan("dev"));
+app.set("views", __dirname + "/views");
+app.set("view engine", "pug");
+app.use('/static',
+    express['static'](path.join(__dirname, './node_modules')));
+app.use('/public',
+    express['static'](path.join(__dirname, '/public')));
+
+
+app.use(sso.checkSSORedirect());
+
+app.use('/accounts', sso.isAuthenticated(), accountsRouter.router);
+
+app.get("/", sso.isAuthenticated(), async (req, res, next) => {
+  const accounts = await accountManager.getAccounts();
+  res.render("boilerplate", {
+    // what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
+    what: req.session.user,
+    title: "SSO-Desktop",
+    apps,
+    accounts,
   });
 });
 
 
-app.get("/list", isAuthenticated, (req, res, next) => {
+app.get("/home", sso.isAuthenticated(), async (req, res, next) => {
+  const accounts = await accountManager.getAccounts();
+  res.render("boilerplate", {
+    // what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
+    what: req.session.user,
+    title: "SSO-Desktop",
+    apps,
+    accounts,
+  });
+});
+
+app.get("/list", sso.isAuthenticated(), (req, res, next) => {
   res.render("index", {
-    what: `SSO-Consumer One ${JSON.stringify(req.session.user, null, 2)}`,
-    title: "SSO-Consumer | Home"
+    what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
+    title: "SSO-Desktop",
+    apps,
   });
 });
 

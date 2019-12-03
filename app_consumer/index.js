@@ -1,6 +1,6 @@
 const app = require("./app");
-const PORT = 3020;
+const config = require('config');
 
-app.listen(PORT, () => {
-  console.info(`sso-consumer listening on port ${PORT}`);
+app.listen(config.get('port'), () => {
+  console.info('sso-consumer with config', config);
 });

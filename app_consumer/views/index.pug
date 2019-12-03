@@ -1,0 +1,34 @@
+extends boilerplate
+
+//block body
+  
+    h1 I am the 
+      span= what
+    ul
+      li
+        a(href='/list') list
+      li
+        a(href='/accounts') accounts
+      li
+        a(href='/logout') logout
+      li
+        a(href='http://sso.ankuranand.com:3010/') main
+    
+    ul
+      if apps
+        for app in apps
+          li
+            a(href=app.url) #{app.title}
+
+    ul
+      if accounts
+        for account in accounts
+          li
+            a(href='/accounts/users/' + account.accountId) #{account.title} #{account.type}
+            a(href='/accounts/change/' + account.accountId) change account
+
+    ul
+      if users
+        for user in users
+          li
+            a(href=user.id) #{user.name}
