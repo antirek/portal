@@ -61,6 +61,18 @@ app.get("/", sso.isAuthenticated(), async (req, res, next) => {
   });
 });
 
+
+app.get("/home", sso.isAuthenticated(), async (req, res, next) => {
+  const accounts = await accountManager.getAccounts();
+  res.render("boilerplate", {
+    // what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
+    what: req.session.user,
+    title: "SSO-Desktop",
+    apps,
+    accounts,
+  });
+});
+
 app.get("/list", sso.isAuthenticated(), (req, res, next) => {
   res.render("index", {
     what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,

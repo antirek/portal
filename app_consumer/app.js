@@ -6,13 +6,6 @@ const path = require('path');
 const favicon = require('serve-favicon');
 
 const { SSOHelper } = require("./sso_helper");
-
-const apps = require('./../app_auth/config/apps');
-const models = require('./../app_auth/models/index');
-
-const accountsRouter = require('./routes/accounts');
-const {AccountManager} = require('./accountManager');
-const accountManager = new AccountManager({models});
 const app = express();
 
 app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
@@ -45,39 +38,20 @@ app.use('/static',
 app.use('/public',
     express['static'](path.join(__dirname, '/public')));
 
-
 app.use(sso.checkSSORedirect());
+// app.use(sso.isAuthenticated());
 
-app.use('/accounts', sso.isAuthenticated(), accountsRouter.router);
-
-app.get("/", sso.isAuthenticated(), async (req, res, next) => {
-  const accounts = await accountManager.getAccounts();
+app.get("/home", async (req, res, next) => {
   res.render("boilerplate", {
-    // what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
     what: req.session.user,
-    title: "SSO-Desktop",
-    apps,
-    accounts,
+    title: "SSO Consumer",
   });
 });
 
-
-app.get("/home", sso.isAuthenticated(), async (req, res, next) => {
-  const accounts = await accountManager.getAccounts();
+app.get("/list", async (req, res, next) => {
   res.render("boilerplate", {
-    // what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
     what: req.session.user,
-    title: "SSO-Desktop",
-    apps,
-    accounts,
-  });
-});
-
-app.get("/list", sso.isAuthenticated(), (req, res, next) => {
-  res.render("index", {
-    what: `SSO-Desktop One ${JSON.stringify(req.session.user, null, 2)}`,
-    title: "SSO-Desktop",
-    apps,
+    title: "SSO Consumer",
   });
 });
 

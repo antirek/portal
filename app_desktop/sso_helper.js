@@ -36,25 +36,25 @@ class SSOHelper {
     });
   }
 
+
+  __isAuthenticated (req, res) {
+    const update = req.path === '/' ? true : false;
+
+    const redirectURL = `${req.protocol}://${req.headers.host}/home`;
+    if (req.session.user == null || update) {
+      return res.redirect(
+        this.ssoServerJWTURL + `login?serviceURL=${redirectURL}`
+      );
+    }
+  }
+
   isAuthenticated () {
     return async (req, res, next) => {
-      // simple check to see if the user is authenicated or not,
-      // if not redirect the user to the SSO Server for Login
-      // pass the redirect URL as current URL
-      // serviceURL is where the sso should redirect in case of valid user
-
-      //console.log('req', req);
-      //console.log('redirect, req original url', req.originalUrl)
-      //console.log('redirect, req path', req.path)
-      const redirectURL = `${req.protocol}://${req.headers.host}${req.baseUrl}${req.path}`;
-      if (req.session.user == null) {
-        return res.redirect(
-          this.ssoServerJWTURL + `login?serviceURL=${redirectURL}`
-        );
-      }
+      this.__isAuthenticated(req,res);
       next();
     };
   }
+
 
   checkSSORedirect () {
     //const that = this;
@@ -94,10 +94,13 @@ class SSOHelper {
         console.log('do redirect')
         return res.redirect(`${redirectURL}`);
       }
-  
+
+      this.__isAuthenticated(req, res);
+
       return next();
     };
   };
+
 }
 
 module.exports = { 
