@@ -8,6 +8,20 @@ module.exports = {
     version: '1.0.0',
   },
 
+  securityDefinitions: {
+    // # X-API-Key: abcdef12345
+    APIKeyHeader: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-API-Token',
+    },
+  },
+  security: [
+    {
+      APIKeyHeader: [],
+    },
+  ],
+
   definitions: {
     Error: {
       additionalProperties: true,

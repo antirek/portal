@@ -96,6 +96,7 @@ const generatePayload = async ssoToken => {
       start: 'http://desktop',
       support: 'http://support',
       flush: 'http://sso.flush',
+      api: 'http://localhost:3014/v1/',
     },
     // global SessionID for the logout functionality.
     globalSessionID: globalSessionToken

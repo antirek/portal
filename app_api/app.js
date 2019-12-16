@@ -3,11 +3,22 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const openapi = require('express-openapi');
 
+const checkApikey = require('./checkAuth');
+
 const createApp = (api) => {
   const app = express();
 
   app.use(bodyParser.json());
   app.use(cors());
+
+  app.use(checkApikey({
+    apiKeyLookup: ()=> {
+      return false;
+    },
+    authHeader: 'X-API-Token',
+    excludes: ['/v1/api'],
+    debug: true,
+  }));
 
   openapi.initialize({
     apiDoc: api.apiDoc, // require('./api-doc.js'),
