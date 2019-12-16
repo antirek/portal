@@ -5,7 +5,7 @@ const config = require("config");
 const path = require('path');
 const favicon = require('serve-favicon');
 
-const { SSOHelper } = require("./sso_helper");
+const { SSOHelper } = require("./../app_auth/sso_helper");
 
 const apps = require('./../app_auth/config/apps');
 const models = require('./../app_auth/models/index');

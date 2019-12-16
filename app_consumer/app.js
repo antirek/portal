@@ -5,7 +5,7 @@ const config = require("config");
 const path = require('path');
 const favicon = require('serve-favicon');
 
-const { SSOHelper } = require("./sso_helper");
+const { SSOHelper } = require("./../app_auth/sso_helper");
 const app = express();
 
 app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
