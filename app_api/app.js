@@ -2,8 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const openapi = require('express-openapi');
+const redis = require('redis');
+
+const redisClient = redis.createClient();
 
 const checkApikey = require('./checkAuth');
+
+const apiKeyLookup = async (key) => {
+  return new Promise((resolve, reject) => {
+    console.log('key', key)
+    redisClient.get(key, (err, res) => {
+      console.log('data', res);
+      resolve(res);
+    });
+  })
+}
 
 const createApp = (api) => {
   const app = express();
@@ -12,9 +25,7 @@ const createApp = (api) => {
   app.use(cors());
 
   app.use(checkApikey({
-    apiKeyLookup: ()=> {
-      return false;
-    },
+    apiKeyLookup,
     authHeader: 'X-API-Token',
     excludes: ['/v1/api'],
     debug: true,

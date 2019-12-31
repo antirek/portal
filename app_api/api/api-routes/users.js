@@ -1,14 +1,16 @@
-module.exports = () => {
+module.exports = (accountManager) => {
   /**
   *
   * @param {Object} req
   * @param {Object} res
   */
-  const get = (req, res) => {
+  const get = async (req, res) => {
     console.log('request query', req.query);
     console.log('request params', req.params);
-
-    res.json({status: 'OK'});
+    console.log('req session data', req.sessionDataL);
+    const accountId = req.sessionDataL.accountId;
+    const users = await accountManager.getUsers(accountId);
+    res.json({users});
   };
 
   get.apiDoc = {

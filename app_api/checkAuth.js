@@ -9,7 +9,7 @@ module.exports = ({
       if (debug) console.log(args);
     };
 
-    return (req, res, next) => {
+    return async (req, res, next) =>{
       const apiKeyValue = req.get(authHeader);
       log('req.path', req.path);
 
@@ -17,8 +17,10 @@ module.exports = ({
         log('auth not required');
         return next();
       }
+      const result = await apiKeyLookup(apiKeyValue)
+      console.log('result');
 
-      if (!apiKeyLookup(apiKeyValue)) {
+      if (!result) {
         log('Invalid api_key:', apiKeyValue);
         res.status(401).send({
           error: 'Invalid API auth key',
@@ -26,6 +28,7 @@ module.exports = ({
         });
       } else {
         log('auth verified good', apiKeyValue);
+        req.sessionDataL = JSON.parse(result);
         return next();
       }
     };

@@ -1,5 +1,7 @@
 const URL = require("url").URL;
 const config = require('config');
+const redis = require('redis');
+const redisClient = redis.createClient();
 
 const apps = require('./../config/apps');
 // const userDB = require('./../config/users');
@@ -48,6 +50,7 @@ const sessionApp = {};
 const fillIntrmTokenCache = (origin, id, intrmToken) => {
   intrmTokenCache[intrmToken] = [id, originAppName[origin]];
 };
+
 const storeApplicationInCache = (origin, id, intrmToken) => {
   if (sessionApp[id] == null) {
     sessionApp[id] = {
@@ -131,7 +134,12 @@ const verifySsoToken = async (req, res, next) => {
   }
   // checking if the token passed has been generated
   const payload = await generatePayload(ssoToken);
-  console.log('payload', payload);  
+
+  console.log('payload', payload);
+
+  const cacheAPI = {key: payload.globalSessionID, data: payload};
+  redisClient.set(cacheAPI.key, JSON.stringify(cacheAPI.data));
+
   const token = await genJwtToken(payload);
   // console.log('token', token);
   // delete the itremCache key for no futher use,
@@ -160,6 +168,7 @@ const doLogin = async (req, res, next) => {
   // else redirect
   const { serviceURL } = req.query;
   const id = encodedId();
+
   req.session.user = id;
   sessionUser[id] = email;
   if (serviceURL == null) {
@@ -168,6 +177,8 @@ const doLogin = async (req, res, next) => {
   }
   const url = new URL(serviceURL);
   const intrmid = encodedId();
+  console.log('origin:', url.origin, 'id:', id, 'intermid:', intrmid);
+
   storeApplicationInCache(url.origin, id, intrmid);
   return res.redirect(`${serviceURL}?ssoToken=${intrmid}`);
 };

@@ -42,6 +42,7 @@ class AccountManager {
   }
 
   async getUsers(accountId) {
+    console.log('account id', accountId);
     const users = await this.models.User.find({accountId});
     if (!users) return;
     return users.map(user => this._formatUser(user));
