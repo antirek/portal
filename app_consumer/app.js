@@ -4,6 +4,7 @@ const session = require("express-session");
 const config = require("config");
 const path = require('path');
 const favicon = require('serve-favicon');
+const fetch = require('node-fetch');
 
 const { SSOHelper } = require("./../app_auth/sso_helper");
 const app = express();
@@ -42,9 +43,26 @@ app.use(sso.checkSSORedirect());
 // app.use(sso.isAuthenticated());
 
 app.get("/home", async (req, res, next) => {
+
+  console.log('user home', req.session.user);
+  const user = req.session.user;
+  const accountId = user.accountId;
+  const authKey = user.globalSessionID;
+  const apiUrl = user.urls.api;
+
+  const users = await fetch(apiUrl + 'users', {
+    headers: {
+      'X-API-Token': authKey,
+    }
+  }).then(res => res.json());
+
+  console.log('users', users)
+  // const users = [];
+
   res.render("boilerplate", {
     what: req.session.user,
     title: "SSO Consumer",
+    users: users.users,
   });
 });
 
