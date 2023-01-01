@@ -14,7 +14,7 @@
     "angular-resource": "^1.7.8",
     "angular-ui-bootstrap": "^2.5.6",
     "bootstrap": "^4.3.1",
-    "config": "^3.2.4",
+    "config": "^3.3.8",
     "ejs": "^2.6.1",
     "ejs-mate": "^2.3.0",
     "express": "^4.16.3",
